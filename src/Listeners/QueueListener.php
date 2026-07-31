@@ -161,7 +161,9 @@ class QueueListener
     protected function durationFor(?JobRecord $record, Carbon $now): ?int
     {
         if ($record && $record->started_at) {
-            return $now->diffInMilliseconds($record->started_at);
+            // abs(): Carbon 3 returns a signed diff, and duration_ms is an
+            // unsigned column — a negative would be rejected outright.
+            return (int) abs($now->diffInMilliseconds($record->started_at));
         }
 
         return null;

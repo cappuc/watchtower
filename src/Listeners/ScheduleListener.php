@@ -112,7 +112,9 @@ class ScheduleListener
             if ($run) {
                 $duration = $runtime !== null
                     ? (int) round($runtime * 1000)
-                    : ($run->started_at ? $now->diffInMilliseconds($run->started_at) : null);
+                    // abs(): Carbon 3 returns a signed diff, and duration_ms is
+                    // an unsigned column — a negative would be rejected.
+                    : ($run->started_at ? (int) abs($now->diffInMilliseconds($run->started_at)) : null);
 
                 $run->update([
                     'finished_at' => $now,
